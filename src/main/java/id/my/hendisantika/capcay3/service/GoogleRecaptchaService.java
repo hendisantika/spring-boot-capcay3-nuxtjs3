@@ -58,6 +58,8 @@ public class GoogleRecaptchaService {
                 log.warn("User score is lower than threshold. GoogleResponse :: {}", googleResponse);
                 googleResponse.setSuccess(false);
             }
+            log.info("Recaptcha verification completed successfully");
+            log.info("Recaptcha response: {}", googleResponse);
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException(e);

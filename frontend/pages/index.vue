@@ -2,7 +2,7 @@
   <div class="form-center">
     <form @submit.prevent="handleSubmit">
       <label>Email:</label>
-      <input name="email" placeholder="Email" type="email"/>
+      <input name="email" placeholder="Email" size="30" type="email"/>
       <input type="submit"/>
     </form>
   </div>
