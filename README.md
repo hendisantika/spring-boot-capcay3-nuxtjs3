@@ -11,7 +11,13 @@
 7. Run the web app: `pnpm dev`
 8. Open your favorite browser: http://localhost:3000
 
-# Image Screenshots
+### Image Screenshots
+
+Home Page
+
+![Home Page](img/home1.png "Home Page")
+
+![Home Page](img/home2.png "Home Page")
 
 ### Console Log
 
