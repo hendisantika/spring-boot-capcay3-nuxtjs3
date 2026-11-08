@@ -2,6 +2,7 @@
 
 [![Java CI with Maven](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/maven.yml/badge.svg)](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/maven.yml)
 [![Node.js CI](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/node.js.yml/badge.svg)](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/node.js.yml)
+[![Docker CI](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/docker.yml/badge.svg)](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/docker.yml)
 ![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.2-6DB33F?logo=springboot)
 ![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxtdotjs)
@@ -16,7 +17,7 @@ which checks it against Google's `siteverify` API before the request reaches the
 |----------|--------------------------------------------------------------------------------------------|
 | Backend  | Java 25, Spring Boot 4.1.2 (Web MVC, Security, RestClient), Lombok, Maven Wrapper (3.9.16) |
 | Frontend | Nuxt 3, Vue 3, `vue-recaptcha-v3`, pnpm                                                    |
-| CI/CD    | GitHub Actions (Maven and Node.js workflows), Dependabot, Docker & Docker Compose          |
+| CI/CD    | GitHub Actions (Maven, Node.js and Docker workflows), Dependabot, Docker & Docker Compose  |
 
 ## How It Works
 
@@ -116,8 +117,9 @@ cd frontend && pnpm install --frozen-lockfile && pnpm build
 |----------------------------------------------------------|-----------------------------------------------------|----------------------------------------------------------------------|
 | [`maven.yml`](.github/workflows/maven.yml)               | push/PR to `main` (skips `frontend/**`, docs, imgs) | Sets up Temurin JDK 25 and runs `./mvnw -B -ntp clean verify`        |
 | [`node.js.yml`](.github/workflows/node.js.yml)           | push/PR to `main` touching `frontend/**`            | pnpm install with `--frozen-lockfile` and `pnpm build` on Node 22.x and 24.x |
+| [`docker.yml`](.github/workflows/docker.yml)             | push/PR to `main` touching Dockerfiles, compose, backend or frontend sources | Builds both images with Buildx (GHA cache, no push), then runs a `docker compose` smoke test (backend `POST /api/login` returns 400 without a token, frontend renders the form) |
 
-Both workflows can also be started by hand (`workflow_dispatch`). They use read-only permissions and cancel
+All workflows can also be started by hand (`workflow_dispatch`). They use read-only permissions and cancel
 older runs on the same branch.
 
 ## Dependabot
