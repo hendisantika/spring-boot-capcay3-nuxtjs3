@@ -38,7 +38,7 @@ which checks it against Google's `siteverify` API before the request reaches the
 | Variable                           | Used by  | Description                         |
 |------------------------------------|----------|-------------------------------------|
 | `GOOGLE_RECAPTCHA_SECRET`          | Backend  | reCAPTCHA v3 **secret key**         |
-| `NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY` | Frontend | reCAPTCHA v3 **site key** (`frontend/.env`) |
+| `NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY` | Frontend | reCAPTCHA v3 **site key** (`frontend/.env`, template: `frontend/.env.example`) |
 
 ## Getting Started
 
@@ -58,10 +58,14 @@ which checks it against Google's `siteverify` API before the request reaches the
    ./mvnw clean spring-boot:run
    ```
 6. Go to the frontend app: `cd frontend`
-7. Create a `.env` file with your **site key**:
-   ```dotenv
-   NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY=your-site-key
+7. Copy [`frontend/.env.example`](frontend/.env.example) to `.env` and put in your **site key**:
+   ```shell
+   cp .env.example .env
    ```
+   ```dotenv
+   NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY=your-recaptcha-v3-site-key
+   ```
+   `.env` is git-ignored. Only `.env.example` is committed.
 8. Install the dependencies: `pnpm install`
 9. Start the web app: `pnpm dev`
 10. Open your browser at http://localhost:3000
