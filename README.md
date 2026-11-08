@@ -33,14 +33,26 @@ which checks it against Google's `siteverify` API before the request reaches the
 - Node.js **22+** and **pnpm** (version comes from `packageManager` in `frontend/package.json`; run `corepack enable`)
 - A Google reCAPTCHA **v3** key pair (site key + secret key)
 
+## Configuration
+
+| Variable                           | Used by  | Description                         |
+|------------------------------------|----------|-------------------------------------|
+| `GOOGLE_RECAPTCHA_SECRET`          | Backend  | reCAPTCHA v3 **secret key**         |
+| `NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY` | Frontend | reCAPTCHA v3 **site key** (`frontend/.env`) |
+
 ## Getting Started
 
 1. Clone this repository: `git clone https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3.git`
 2. Go to the folder: `cd spring-boot-capcay3-nuxtjs3`
 3. Create a Google reCAPTCHA v3 key pair [here](https://www.google.com/recaptcha/admin/create) and add `localhost`
    as a domain.
-4. Put your **secret key** in `src/main/java/id/my/hendisantika/capcay3/dto/GoogleRecaptchaRequest.java`
-   (replace `"secret key"`). ⚠️ Do **not** commit a real secret key.
+4. Export your **secret key** as an environment variable. The backend reads it through
+   `google.recaptcha.secret=${GOOGLE_RECAPTCHA_SECRET:}` in `application.properties`:
+   ```shell
+   export GOOGLE_RECAPTCHA_SECRET=your-secret-key
+   ```
+   ⚠️ Never commit the real secret key. In IntelliJ IDEA you can set it under *Run Configuration → Environment
+   variables*. The app logs a warning on startup if it is missing.
 5. Start the backend (port `8080`):
    ```shell
    ./mvnw clean spring-boot:run

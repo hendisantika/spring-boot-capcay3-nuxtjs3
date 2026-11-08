@@ -19,8 +19,4 @@ public class GoogleRecaptchaRequest {
     private String secret;
     private String response;
     private String remoteip;
-
-    public GoogleRecaptchaRequest() {
-        this.secret = "secret key";
-    }
 }

@@ -1,8 +1,8 @@
 package id.my.hendisantika.capcay3.service;
 
+import id.my.hendisantika.capcay3.config.GoogleRecaptchaProperties;
 import id.my.hendisantika.capcay3.dto.GoogleRecaptchaRequest;
 import id.my.hendisantika.capcay3.dto.GoogleRecaptchaResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Objects;
@@ -28,15 +29,24 @@ import java.util.Objects;
  */
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class GoogleRecaptchaService {
     private static final double SCORE_THRESHOLD = 0.5;
     private static final String RECAPTCHA_VERIFY_ADDRESS = "https://www.google.com/recaptcha/api/siteverify";
 
     private final RestTemplate restTemplate;
+    private final GoogleRecaptchaProperties properties;
+
+    public GoogleRecaptchaService(RestTemplate restTemplate, GoogleRecaptchaProperties properties) {
+        this.restTemplate = restTemplate;
+        this.properties = properties;
+        if (!StringUtils.hasText(properties.secret())) {
+            log.warn("Google reCAPTCHA secret key is not configured. Set the GOOGLE_RECAPTCHA_SECRET environment variable.");
+        }
+    }
 
     public GoogleRecaptchaResponse verifyRecaptcha(GoogleRecaptchaRequest request) {
         try {
+            request.setSecret(properties.secret());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
