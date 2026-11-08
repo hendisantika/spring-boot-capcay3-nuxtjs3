@@ -37,7 +37,7 @@ which checks it against Google's `siteverify` API before the request reaches the
 
 | Variable                           | Used by  | Description                         |
 |------------------------------------|----------|-------------------------------------|
-| `GOOGLE_RECAPTCHA_SECRET`          | Backend  | reCAPTCHA v3 **secret key**         |
+| `GOOGLE_RECAPTCHA_SECRET`          | Backend  | reCAPTCHA v3 **secret key** (`.env`, template: `.env.example`) |
 | `NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY` | Frontend | reCAPTCHA v3 **site key** (`frontend/.env`, template: `frontend/.env.example`) |
 
 ## Getting Started
@@ -46,13 +46,17 @@ which checks it against Google's `siteverify` API before the request reaches the
 2. Go to the folder: `cd spring-boot-capcay3-nuxtjs3`
 3. Create a Google reCAPTCHA v3 key pair [here](https://www.google.com/recaptcha/admin/create) and add `localhost`
    as a domain.
-4. Export your **secret key** as an environment variable. The backend reads it through
-   `google.recaptcha.secret=${GOOGLE_RECAPTCHA_SECRET:}` in `application.properties`:
+4. Copy [`.env.example`](.env.example) to `.env` in the project root and put in your **secret key**:
    ```shell
-   export GOOGLE_RECAPTCHA_SECRET=your-secret-key
+   cp .env.example .env
    ```
-   ⚠️ Never commit the real secret key. In IntelliJ IDEA you can set it under *Run Configuration → Environment
-   variables*. The app logs a warning on startup if it is missing.
+   ```dotenv
+   GOOGLE_RECAPTCHA_SECRET=your-recaptcha-v3-secret-key
+   ```
+   Spring Boot loads `.env` through `spring.config.import=optional:file:.env[.properties]`. You can also
+   `export GOOGLE_RECAPTCHA_SECRET=...` (or set it in IntelliJ *Run Configuration → Environment variables*). A real
+   environment variable wins over `.env`. ⚠️ `.env` is git-ignored, so never commit the real secret key. The app
+   logs a warning on startup if the secret is missing.
 5. Start the backend (port `8080`):
    ```shell
    ./mvnw clean spring-boot:run
