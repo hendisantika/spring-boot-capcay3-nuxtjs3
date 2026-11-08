@@ -15,7 +15,7 @@ which checks it against Google's `siteverify` API before the request reaches the
 
 | Layer    | Technology                                                                                 |
 |----------|--------------------------------------------------------------------------------------------|
-| Backend  | Java 25, Spring Boot 4.1.2 (Web MVC, Security, RestClient), Lombok, Maven Wrapper (3.9.16) |
+| Backend  | Java 25, Spring Boot 4.1.2 (Web MVC, Security, RestClient, Actuator), Lombok, Maven Wrapper (3.9.16) |
 | Frontend | Nuxt 3, Vue 3, `vue-recaptcha-v3`, pnpm                                                    |
 | CI/CD    | GitHub Actions (Maven, Node.js and Docker workflows), Dependabot, Docker & Docker Compose  |
 
@@ -98,6 +98,10 @@ Notes:
 - The env files are passed to the containers at runtime (`env_file`). They are never copied into the images
   (see the `.dockerignore` files).
 - The frontend calls the backend from the browser at `http://localhost:8080`, so keep port `8080` published.
+- Both services have a healthcheck: backend `GET /actuator/health/readiness` (Spring Boot Actuator, only the
+  `health` endpoint is exposed) and frontend `GET /`. The frontend starts only after the backend is healthy.
+  Use `docker compose ps` to see the status, or `docker compose up --build -d --wait` to block until both are
+  healthy.
 - You can also build the images one by one: `docker build -t capcay3-backend .` and
   `docker build -t capcay3-frontend ./frontend`.
 
@@ -117,7 +121,7 @@ cd frontend && pnpm install --frozen-lockfile && pnpm build
 |----------------------------------------------------------|-----------------------------------------------------|----------------------------------------------------------------------|
 | [`maven.yml`](.github/workflows/maven.yml)               | push/PR to `main` (skips `frontend/**`, docs, imgs) | Sets up Temurin JDK 25 and runs `./mvnw -B -ntp clean verify`        |
 | [`node.js.yml`](.github/workflows/node.js.yml)           | push/PR to `main` touching `frontend/**`            | pnpm install with `--frozen-lockfile` and `pnpm build` on Node 22.x and 24.x |
-| [`docker.yml`](.github/workflows/docker.yml)             | push/PR to `main` touching Dockerfiles, compose, backend or frontend sources | Builds both images with Buildx (GHA cache, no push), then runs a `docker compose` smoke test (backend `POST /api/login` returns 400 without a token, frontend renders the form) |
+| [`docker.yml`](.github/workflows/docker.yml)             | push/PR to `main` touching Dockerfiles, compose, backend or frontend sources | Builds both images with Buildx (GHA cache, no push), then runs `docker compose up --wait` until both healthchecks pass and smoke tests them (`/actuator/health` is UP, `POST /api/login` returns 400 without a token, frontend renders the form) |
 
 All workflows can also be started by hand (`workflow_dispatch`). They use read-only permissions and cancel
 older runs on the same branch.

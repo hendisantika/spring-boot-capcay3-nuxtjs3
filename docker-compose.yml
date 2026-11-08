@@ -16,6 +16,12 @@ services:
       GOOGLE_RECAPTCHA_SECRET: ${GOOGLE_RECAPTCHA_SECRET:-}
     ports:
       - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://127.0.0.1:8080/actuator/health/readiness" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   frontend:
@@ -29,6 +35,13 @@ services:
         required: false
     ports:
       - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped

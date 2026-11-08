@@ -72,28 +72,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Start services
+      - name: Start services and wait until healthy
         env:
           GOOGLE_RECAPTCHA_SECRET: ci-dummy-secret
-        run: docker compose up --build -d
+        run: docker compose up --build -d --wait --wait-timeout 300
 
-      - name: Wait for backend
+      - name: Check backend
         run: |
-          for i in $(seq 1 60); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8080/api/login || true)
-            # Without a valid reCAPTCHA token the filter answers 400 -> app is up and the filter works
-            if [ "$code" = "400" ]; then echo "backend OK (HTTP $code)"; exit 0; fi
-            sleep 2
-          done
-          echo "backend did not become ready"; exit 1
+          curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'
+          # Without a valid reCAPTCHA token the filter answers 400 -> the filter works
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8080/api/login)
+          echo "POST /api/login -> HTTP $code"
+          test "$code" = "400"
 
       - name: Check frontend
-        run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000 | grep -q 'placeholder="Email"'; then echo "frontend OK"; exit 0; fi
-            sleep 2
-          done
-          echo "frontend did not render"; exit 1
+        run: curl -fsS http://localhost:3000 | grep -q 'placeholder="Email"' && echo "frontend OK"
 
       - name: Show logs
         if: always()

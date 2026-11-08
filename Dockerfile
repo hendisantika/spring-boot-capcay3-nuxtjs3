@@ -18,7 +18,11 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -ntp clean package -DskipTests
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-RUN groupadd --system spring && useradd --system --gid spring spring
+# curl is used by the docker-compose healthcheck
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system spring && useradd --system --gid spring spring
 
 # Copy Spring Boot layers (least to most frequently changing)
 COPY --from=build /workspace/extracted/dependencies/ ./
