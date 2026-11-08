@@ -3,13 +3,13 @@ package id.my.hendisantika.capcay3.filter;
 import id.my.hendisantika.capcay3.dto.GoogleRecaptchaRequest;
 import id.my.hendisantika.capcay3.dto.GoogleRecaptchaResponse;
 import id.my.hendisantika.capcay3.service.GoogleRecaptchaService;
-import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -35,7 +35,7 @@ public class GoogleRecaptchaFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String googleResponse = request.getHeader("google-recaptcha-token");
-            if (StringUtils.isBlank(googleResponse)) {
+            if (!StringUtils.hasText(googleResponse)) {
                 log.warn("Google response is null for the request :: {}", request.getRequestURL());
             }
             GoogleRecaptchaRequest googleRecaptchaRequest = new GoogleRecaptchaRequest();

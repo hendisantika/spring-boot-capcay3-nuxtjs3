@@ -1,6 +1,5 @@
 package id.my.hendisantika.capcay3.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import id.my.hendisantika.capcay3.dto.GoogleRecaptchaRequest;
 import id.my.hendisantika.capcay3.dto.GoogleRecaptchaResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,6 @@ public class GoogleRecaptchaService {
     private static final double SCORE_THRESHOLD = 0.5;
     private static final String RECAPTCHA_VERIFY_ADDRESS = "https://www.google.com/recaptcha/api/siteverify";
 
-    private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
     public GoogleRecaptchaResponse verifyRecaptcha(GoogleRecaptchaRequest request) {
