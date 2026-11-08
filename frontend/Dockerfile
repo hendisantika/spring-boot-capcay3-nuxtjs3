@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------- Build stage ----------
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 # Use the pnpm version pinned in package.json ("packageManager").
@@ -16,7 +16,7 @@ COPY . .
 RUN pnpm build
 
 # ---------- Runtime stage ----------
-FROM node:24-alpine
+FROM node:26-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production \
