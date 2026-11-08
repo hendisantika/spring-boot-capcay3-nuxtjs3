@@ -131,7 +131,7 @@ older runs on the same branch.
 | Maven          | `/`         | daily, 05:00 Asia/Jakarta  | `spring-boot` and `maven-minor-patch` (minor/patch) |
 | npm (pnpm)     | `/frontend` | daily, 05:00 Asia/Jakarta  | `nuxt-vue` and `npm-minor-patch` (minor/patch)      |
 | GitHub Actions | `/`         | weekly, Monday 05:00       | all actions in one PR                             |
-| Docker         | `/`, `/frontend` | weekly, Monday 05:00  | base images (`eclipse-temurin`, `node`)          |
+| Docker         | `/`, `/frontend` | weekly, Monday 05:00  | base images (`eclipse-temurin`, `node` LTS only) |
 
 Major updates still get their own PRs. Each PR is labeled, uses a conventional commit prefix
 (`build(deps)`, `build(deps-dev)`, `ci(deps)`) and waits 3 days after a release before it opens.

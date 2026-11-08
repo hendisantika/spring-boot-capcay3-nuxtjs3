@@ -121,6 +121,15 @@ updates:
       time: "05:00"
       timezone: "Asia/Jakarta"
     open-pull-requests-limit: 5
+    ignore:
+      # Only LTS (even) Node.js majors; odd majors are short-lived "Current" releases
+      - dependency-name: "node"
+        versions:
+          - ">= 25, < 26"
+          - ">= 27, < 28"
+          - ">= 29, < 30"
+          - ">= 31, < 32"
+          - ">= 33, < 34"
     labels:
       - "dependencies"
       - "docker"

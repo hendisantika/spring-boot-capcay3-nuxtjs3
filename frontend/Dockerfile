@@ -1,11 +1,12 @@
 # syntax=docker/dockerfile:1
 
 # ---------- Build stage ----------
-FROM node:25-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
-# Use the pnpm version pinned in package.json ("packageManager")
-RUN corepack enable
+# Use the pnpm version pinned in package.json ("packageManager").
+# Corepack is no longer bundled with Node.js 25+, so install it from npm first.
+RUN npm install -g corepack@latest && corepack enable
 
 COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
@@ -15,7 +16,7 @@ COPY . .
 RUN pnpm build
 
 # ---------- Runtime stage ----------
-FROM node:25-alpine
+FROM node:24-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production \
