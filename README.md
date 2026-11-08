@@ -1,17 +1,93 @@
 # spring-boot-capcay3-nuxtjs3
 
-### Things todo list
+[![Java CI with Maven](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/maven.yml/badge.svg)](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/maven.yml)
+[![Node.js CI](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/node.js.yml/badge.svg)](https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3/actions/workflows/node.js.yml)
+![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.2-6DB33F?logo=springboot)
+![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxtdotjs)
+![Dependabot](https://img.shields.io/badge/Dependabot-enabled-025E8C?logo=dependabot)
+
+Google reCAPTCHA v3 demo: a **Nuxt 3** frontend gets a reCAPTCHA token and sends it to a **Spring Boot** backend,
+which checks it against Google's `siteverify` API before the request reaches the controller.
+
+## Tech Stack
+
+| Layer    | Technology                                                                                 |
+|----------|--------------------------------------------------------------------------------------------|
+| Backend  | Java 25, Spring Boot 4.1.2 (Web MVC, Security, RestClient), Lombok, Maven Wrapper (3.9.16) |
+| Frontend | Nuxt 3, Vue 3, `vue-recaptcha-v3`, pnpm                                                    |
+| CI/CD    | GitHub Actions (Maven and Node.js workflows), Dependabot                                   |
+
+## How It Works
+
+1. The frontend (`frontend/composables/useGoogleRecaptcha.ts`) runs reCAPTCHA v3 and gets a token.
+2. It calls `POST http://localhost:8080/api/login` with the token in the `google-recaptcha-token` header.
+3. `GoogleRecaptchaFilter` catches every URL containing `login` and passes the token to `GoogleRecaptchaService`.
+4. The service posts the token to `https://www.google.com/recaptcha/api/siteverify`. A score below `0.5` counts as
+   a failure.
+5. If the check passes, `LoginController` returns a response. Otherwise `AppControllerAdvice` returns `400 Bad Request`.
+
+## Prerequisites
+
+- JDK **25** (e.g. [Temurin 25](https://adoptium.net/))
+- Node.js **22+** and **pnpm** (version comes from `packageManager` in `frontend/package.json`; run `corepack enable`)
+- A Google reCAPTCHA **v3** key pair (site key + secret key)
+
+## Getting Started
 
 1. Clone this repository: `git clone https://github.com/hendisantika/spring-boot-capcay3-nuxtjs3.git`
-2. Navigate to the folder: `cd spring-boot-capcay3-nuxtjs3`
-3. Create Google Recapctcha V3 [here](https://www.google.com/recaptcha/admin/create):
-4. Run the application: `mvn clean spring-boot:run`
-5. Go to frontend app: `cd frontend`
-6. Run the command: `pnpm install`
-7. Run the web app: `pnpm dev`
-8. Open your favorite browser: http://localhost:3000
+2. Go to the folder: `cd spring-boot-capcay3-nuxtjs3`
+3. Create a Google reCAPTCHA v3 key pair [here](https://www.google.com/recaptcha/admin/create) and add `localhost`
+   as a domain.
+4. Put your **secret key** in `src/main/java/id/my/hendisantika/capcay3/dto/GoogleRecaptchaRequest.java`
+   (replace `"secret key"`). ⚠️ Do **not** commit a real secret key.
+5. Start the backend (port `8080`):
+   ```shell
+   ./mvnw clean spring-boot:run
+   ```
+6. Go to the frontend app: `cd frontend`
+7. Create a `.env` file with your **site key**:
+   ```dotenv
+   NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY=your-site-key
+   ```
+8. Install the dependencies: `pnpm install`
+9. Start the web app: `pnpm dev`
+10. Open your browser at http://localhost:3000
 
-### Image Screenshots
+## Build & Test
+
+```shell
+# Backend: compile, run tests, package the jar
+./mvnw clean verify
+
+# Frontend: production build
+cd frontend && pnpm install --frozen-lockfile && pnpm build
+```
+
+## Continuous Integration
+
+| Workflow                                                 | Runs when                                           | What it does                                                         |
+|----------------------------------------------------------|-----------------------------------------------------|----------------------------------------------------------------------|
+| [`maven.yml`](.github/workflows/maven.yml)               | push/PR to `main` (skips `frontend/**`, docs, imgs) | Sets up Temurin JDK 25 and runs `./mvnw -B -ntp clean verify`        |
+| [`node.js.yml`](.github/workflows/node.js.yml)           | push/PR to `main` touching `frontend/**`            | pnpm install with `--frozen-lockfile` and `pnpm build` on Node 22.x and 24.x |
+
+Both workflows can also be started by hand (`workflow_dispatch`). They use read-only permissions and cancel
+older runs on the same branch.
+
+## Dependabot
+
+[`.github/dependabot.yml`](.github/dependabot.yml) keeps dependencies up to date:
+
+| Ecosystem      | Directory   | Schedule                   | Grouping                                          |
+|----------------|-------------|----------------------------|---------------------------------------------------|
+| Maven          | `/`         | daily, 05:00 Asia/Jakarta  | `spring-boot` and `maven-minor-patch` (minor/patch) |
+| npm (pnpm)     | `/frontend` | daily, 05:00 Asia/Jakarta  | `nuxt-vue` and `npm-minor-patch` (minor/patch)      |
+| GitHub Actions | `/`         | weekly, Monday 05:00       | all actions in one PR                             |
+
+Major updates still get their own PRs. Each PR is labeled, uses a conventional commit prefix
+(`build(deps)`, `build(deps-dev)`, `ci(deps)`) and waits 3 days after a release before it opens.
+
+## Image Screenshots
 
 Home Page
 
@@ -19,7 +95,7 @@ Home Page
 
 ![Home Page](img/home2.png "Home Page")
 
-### Console Log
+## Console Log (sample, recorded on an earlier Spring Boot 3.3.2 / Java 21 version)
 
 ```shell
 /Users/hendisantika/.sdkman/candidates/java/21.0.1-tem/bin/java -XX:TieredStopAtLevel=1 -Dspring.output.ansi.enabled=always -Dcom.sun.management.jmxremote -Dspring.jmx.enabled=true -Dspring.liveBeansView.mbeanDomain -Dspring.application.admin.enabled=true -Dmanagement.endpoints.jmx.exposure.include=* -javaagent:/Users/hendisantika/Applications/IntelliJ IDEA Ultimate.app/Contents/lib/idea_rt.jar=49478:/Users/hendisantika/Applications/IntelliJ IDEA Ultimate.app/Contents/bin -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath /Users/hendisantika/IdeaProjects/spring-boot-capcay3-nuxtjs3/target/classes:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.2/spring-boot-starter-web-3.3.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.2/spring-boot-starter-3.3.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.2/spring-boot-starter-logging-3.3.2.jar:/Users/hendisantika/.m2/repository/ch/qos/logback/logback-classic/1.5.6/logback-classic-1.5.6.jar:/Users/hendisantika/.m2/repository/ch/qos/logback/logback-core/1.5.6/logback-core-1.5.6.jar:/Users/hendisantika/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/hendisantika/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/hendisantika/.m2/repository/org/slf4j/jul-to-slf4j/2.0.13/jul-to-slf4j-2.0.13.jar:/Users/hendisantika/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/hendisantika/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.2/spring-boot-starter-json-3.3.2.jar:/Users/hendisantika/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.2/jackson-databind-2.17.2.jar:/Users/hendisantika/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.2/jackson-annotations-2.17.2.jar:/Users/hendisantika/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.2/jackson-core-2.17.2.jar:/Users/hendisantika/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.2/jackson-datatype-jdk8-2.17.2.jar:/Users/hendisantika/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.2/jackson-datatype-jsr310-2.17.2.jar:/Users/hendisantika/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.2/jackson-module-parameter-names-2.17.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.2/spring-boot-starter-tomcat-3.3.2.jar:/Users/hendisantika/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.26/tomcat-embed-core-10.1.26.jar:/Users/hendisantika/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.26/tomcat-embed-el-10.1.26.jar:/Users/hendisantika/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.26/tomcat-embed-websocket-10.1.26.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-web/6.1.11/spring-web-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-beans/6.1.11/spring-beans-6.1.11.jar:/Users/hendisantika/.m2/repository/io/micrometer/micrometer-observation/1.13.2/micrometer-observation-1.13.2.jar:/Users/hendisantika/.m2/repository/io/micrometer/micrometer-commons/1.13.2/micrometer-commons-1.13.2.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-webmvc/6.1.11/spring-webmvc-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-context/6.1.11/spring-context-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-expression/6.1.11/spring-expression-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.2/spring-boot-starter-security-3.3.2.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-aop/6.1.11/spring-aop-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/security/spring-security-config/6.3.1/spring-security-config-6.3.1.jar:/Users/hendisantika/.m2/repository/org/springframework/security/spring-security-web/6.3.1/spring-security-web-6.3.1.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-devtools/3.3.2/spring-boot-devtools-3.3.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot/3.3.2/spring-boot-3.3.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.2/spring-boot-autoconfigure-3.3.2.jar:/Users/hendisantika/.m2/repository/org/springframework/boot/spring-boot-configuration-processor/3.3.2/spring-boot-configuration-processor-3.3.2.jar:/Users/hendisantika/.m2/repository/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar:/Users/hendisantika/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-core/6.1.11/spring-core-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/spring-jcl/6.1.11/spring-jcl-6.1.11.jar:/Users/hendisantika/.m2/repository/org/springframework/security/spring-security-core/6.3.1/spring-security-core-6.3.1.jar:/Users/hendisantika/.m2/repository/org/springframework/security/spring-security-crypto/6.3.1/spring-security-crypto-6.3.1.jar id.my.hendisantika.capcay3.SpringBootCapcay3Nuxtjs3Application
