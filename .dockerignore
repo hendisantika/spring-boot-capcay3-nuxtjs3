@@ -1,0 +1,16 @@
+# Only the Maven project is needed for the backend image
+target/
+frontend/
+node_modules/
+img/
+logs/
+.git/
+.github/
+.idea/
+*.iml
+.DS_Store
+.env
+.env.*
+*.md
+Dockerfile
+docker-compose.yml

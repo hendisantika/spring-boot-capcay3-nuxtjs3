@@ -16,7 +16,7 @@ which checks it against Google's `siteverify` API before the request reaches the
 |----------|--------------------------------------------------------------------------------------------|
 | Backend  | Java 25, Spring Boot 4.1.2 (Web MVC, Security, RestClient), Lombok, Maven Wrapper (3.9.16) |
 | Frontend | Nuxt 3, Vue 3, `vue-recaptcha-v3`, pnpm                                                    |
-| CI/CD    | GitHub Actions (Maven and Node.js workflows), Dependabot                                   |
+| CI/CD    | GitHub Actions (Maven and Node.js workflows), Dependabot, Docker & Docker Compose          |
 
 ## How It Works
 
@@ -74,6 +74,32 @@ which checks it against Google's `siteverify` API before the request reaches the
 9. Start the web app: `pnpm dev`
 10. Open your browser at http://localhost:3000
 
+## Run with Docker
+
+The repo has a multi-stage [`Dockerfile`](Dockerfile) for the backend (Temurin JDK 25 build, JRE 25 runtime,
+Spring Boot layered jar), a [`frontend/Dockerfile`](frontend/Dockerfile) (Node 24 + pnpm build, Nitro server
+runtime) and a [`docker-compose.yml`](docker-compose.yml) that runs both. Both containers run as non-root users.
+
+1. Create the env files from the templates and fill in your keys:
+   ```shell
+   cp .env.example .env                    # GOOGLE_RECAPTCHA_SECRET
+   cp frontend/.env.example frontend/.env  # NUXT_PUBLIC_GOOGLE_RECAPTCHA_KEY
+   ```
+2. Build and start:
+   ```shell
+   docker compose up --build -d
+   ```
+3. Open http://localhost:3000. The backend listens on http://localhost:8080.
+4. Stop: `docker compose down`
+
+Notes:
+
+- The env files are passed to the containers at runtime (`env_file`). They are never copied into the images
+  (see the `.dockerignore` files).
+- The frontend calls the backend from the browser at `http://localhost:8080`, so keep port `8080` published.
+- You can also build the images one by one: `docker build -t capcay3-backend .` and
+  `docker build -t capcay3-frontend ./frontend`.
+
 ## Build & Test
 
 ```shell
@@ -103,6 +129,7 @@ older runs on the same branch.
 | Maven          | `/`         | daily, 05:00 Asia/Jakarta  | `spring-boot` and `maven-minor-patch` (minor/patch) |
 | npm (pnpm)     | `/frontend` | daily, 05:00 Asia/Jakarta  | `nuxt-vue` and `npm-minor-patch` (minor/patch)      |
 | GitHub Actions | `/`         | weekly, Monday 05:00       | all actions in one PR                             |
+| Docker         | `/`, `/frontend` | weekly, Monday 05:00  | base images (`eclipse-temurin`, `node`)          |
 
 Major updates still get their own PRs. Each PR is labeled, uses a conventional commit prefix
 (`build(deps)`, `build(deps-dev)`, `ci(deps)`) and waits 3 days after a release before it opens.
